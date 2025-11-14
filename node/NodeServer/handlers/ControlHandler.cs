@@ -4,7 +4,7 @@ using Node;
 
 namespace NodeServer.handlers;
 
-public partial class ControlHandler : IRequestHandler
+public partial class ControlHandler : IRequestHandler<ControlRequest>
 {
     private readonly ILogger logger;
     private readonly IHostApplicationLifetime applicationLifetime;
@@ -17,20 +17,20 @@ public partial class ControlHandler : IRequestHandler
         requestMap.AddHandler(this);
     }
 
-    public async Task Handle(Request request)
+    public async Task Handle(ControlRequest request)
     {
         logger.DebugProto(request);
-        switch (request.ControlRequest.ControlTypeCase)
+        switch (request.ControlTypeCase)
         {
             case ControlRequest.ControlTypeOneofCase.Shutdown:
-                if (request.ControlRequest.Shutdown.Delay > 0)
+                if (request.Shutdown.Delay > 0)
                 {
-                    await Task.Delay((int)request.ControlRequest.Shutdown.Delay);
+                    await Task.Delay((int)request.Shutdown.Delay);
                 }
                 applicationLifetime.StopApplication();
                 break;
             default:
-                WarnUnknownControl(request.ControlRequest.ControlTypeCase);
+                WarnUnknownControl(request.ControlTypeCase);
                 break;
         }
     }

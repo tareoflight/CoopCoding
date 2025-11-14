@@ -5,7 +5,7 @@ namespace NodeServer;
 
 public interface IHandlerMap
 {
-    public void AddHandler(IRequestHandler handler);
+    public void AddHandler<T>(IRequestHandler<T> handler) where T: Google.Protobuf.IMessage<T>;
 
-    public IRequestHandler? GetHandlerOrNull(Request.RequestTypeOneofCase requestType);
+    public IRequestHandler<T>? GetHandlerOrNull<T>(Request.RequestTypeOneofCase requestType) where T: Google.Protobuf.IMessage<T>;
 }
