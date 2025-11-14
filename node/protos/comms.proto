@@ -11,11 +11,16 @@ message Request {
     oneof request_type {
         ControlRequest control_request = 1;
         MapRequest map_request = 2;
+        MatRequest mat_request = 3;
     }
 }
 
 message MapRequest {
     PBVector3 player = 1;
+}
+
+message MatRequest {
+    uint8 id = 1;
 }
 
 message ControlRequest {
@@ -38,11 +43,13 @@ message NodeEvent {
     oneof event_type {
         Heartbeat heartbeat_event = 1;
         MapEvent map_event = 2;
+        MatData = mat_data = 3;
     }
 }
 
 message MapEvent {
-    repeated MapNode nodes = 1;
+    repeated PBChunkData chunks = 1;
+    repeated PBNodeData nodes = 2;
 }
 
 message Heartbeat{
@@ -55,9 +62,22 @@ message Heartbeat{
  **                                   **
  ***************************************/
 
-message MapNode {
-    PBVector3 location = 1;
-    bytes contents = 2;
+message PBChunkData {
+    uint64 id = 1;
+    PBVector3 location = 2;
+}
+
+message PBNodeData {
+    uint64 id = 1;
+    uint32 chunk_id = 2;
+    PBVector3 location = 3;
+    bytes contents = 4;
+}
+
+message MatData {
+    uint8 id = 1;
+    string name = 2;
+    string description = 3;
 }
 
 message PBVector3 {
