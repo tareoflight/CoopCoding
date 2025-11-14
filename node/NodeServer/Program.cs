@@ -13,6 +13,7 @@ public partial class Program
 {
     static async Task Main(string[] args)
     {
+
         const string Name = "NodeServer";
         HostApplicationBuilderSettings settings = new()
         {
@@ -57,6 +58,7 @@ public partial class Program
         builder.Services.AddHostedService<RequestDispatcher>();
         builder.Services.AddHostedService<ReceiveService>();
         builder.Services.AddHostedService<HeartbeatService>();
+        builder.Services.AddHostedService<SpacetimeService>();
 
         using IHost host = builder.Build();
         await host.RunAsync();

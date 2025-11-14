@@ -69,7 +69,7 @@ message PBChunkData {
 
 message PBNodeData {
     uint64 id = 1;
-    uint32 chunk_id = 2;
+    uint64 chunk_id = 2;
     PBVector3 location = 3;
     bytes contents = 4;
 }
