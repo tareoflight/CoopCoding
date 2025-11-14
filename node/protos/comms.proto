@@ -20,7 +20,7 @@ message MapRequest {
 }
 
 message MatRequest {
-    uint8 id = 1;
+    uint32 id = 1;
 }
 
 message ControlRequest {
@@ -43,7 +43,7 @@ message NodeEvent {
     oneof event_type {
         Heartbeat heartbeat_event = 1;
         MapEvent map_event = 2;
-        MatData = mat_data = 3;
+        MatData mat_data = 3;
     }
 }
 
@@ -75,7 +75,7 @@ message PBNodeData {
 }
 
 message MatData {
-    uint8 id = 1;
+    uint32 id = 1;
     string name = 2;
     string description = 3;
 }
