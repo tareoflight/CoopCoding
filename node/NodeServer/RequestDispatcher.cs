@@ -5,8 +5,14 @@ using NodeServer.handlers;
 
 namespace NodeServer;
 
-public partial class RequestDispatcher(ILogger<RequestDispatcher> logger, IHandlerMap requestMap, IAsyncQueue<Request> requestQueue) : BackgroundService
+public partial class RequestDispatcher(ILogger<RequestDispatcher> logger, IAsyncQueue<Request> requestQueue, IOneofHandler<ControlRequest> controlHandler, IOneofHandler<MatRequest> materialHandler) : BackgroundService
 {
+    private readonly Dictionary<Request.RequestTypeOneofCase, Func<Request, Task>> handlerMap = new()
+    {
+        [Request.RequestTypeOneofCase.ControlRequest] = request => controlHandler.Handle(request.ControlRequest),
+        [Request.RequestTypeOneofCase.MatRequest] = request => materialHandler.Handle(request.MatRequest),
+    };
+
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
         while (!cancellationToken.IsCancellationRequested)
@@ -14,10 +20,9 @@ public partial class RequestDispatcher(ILogger<RequestDispatcher> logger, IHandl
             DebugWaitRequest();
             Request request = await requestQueue.DequeueAsync(cancellationToken);
             DebugRequestType(request.RequestTypeCase);
-            IRequestHandler? handler = requestMap.GetHandlerOrNull(request.RequestTypeCase);
-            if (handler != null)
+            if (handlerMap.TryGetValue(request.RequestTypeCase, out Func<Request, Task>? handler))
             {
-                await handler.Handle(request);
+                await handler.Invoke(request);
             }
             else
             {

@@ -4,10 +4,9 @@ using NodeServer.handlers;
 
 namespace NodeServer.Tests.handlers;
 
-public class BaseHandlerTests<T> : IDisposable where T : IRequestHandler
+public class BaseHandlerTests<T> : IDisposable
 {
     protected readonly Mock<ILogger<T>> loggerMock = new();
-    protected readonly Mock<IHandlerMap> mapMock = new();
 
     public BaseHandlerTests()
     {
@@ -18,8 +17,6 @@ public class BaseHandlerTests<T> : IDisposable where T : IRequestHandler
     {
         loggerMock.VerifyNoOtherCalls();
         // should be in the ctor of any handler
-        mapMock.Verify(m => m.AddHandler(It.IsAny<T>()));
-        mapMock.VerifyNoOtherCalls();
         GC.SuppressFinalize(this);
     }
 }

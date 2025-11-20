@@ -13,13 +13,13 @@ public sealed class ControlHandlerTests : BaseHandlerTests<ControlHandler>
 
     public ControlHandlerTests()
     {
-        handler = new(loggerMock.Object, mapMock.Object, lifetimeMock.Object);
+        handler = new(loggerMock.Object, lifetimeMock.Object);
     }
 
     [Fact]
     public async Task Handle_Unknown()
     {
-        Request request = new() { ControlRequest = new ControlRequest() };
+        ControlRequest request = new();
         await handler.Handle(request);
         loggerMock.Verify(m => m.IsEnabled(LogLevel.Debug));
         loggerMock.Verify(m => m.IsEnabled(LogLevel.Warning));
@@ -28,15 +28,9 @@ public sealed class ControlHandlerTests : BaseHandlerTests<ControlHandler>
     [Fact]
     public async Task Handle_Shutdown()
     {
-        Request request = new() { ControlRequest = new ControlRequest() { Shutdown = new Shutdown() } };
+        ControlRequest request = new() { Shutdown = new Shutdown() };
         await handler.Handle(request);
         lifetimeMock.Verify(m => m.StopApplication());
         loggerMock.Verify(m => m.IsEnabled(LogLevel.Debug));
-    }
-
-    [Fact]
-    public void RequestType()
-    {
-        Assert.Equal(Request.RequestTypeOneofCase.ControlRequest, handler.RequestType);
     }
 }

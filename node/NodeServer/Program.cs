@@ -49,7 +49,7 @@ public partial class Program
 
         builder.Services.AddOptions<NodeServerOptions>().Bind(builder.Configuration.GetSection(nameof(NodeServerOptions)));
 
-        builder.Services.AddActivatedSingleton<ControlHandler>();
+        builder.Services.AddSingleton<IOneofHandler<ControlRequest>, ControlHandler>();
         builder.Services.AddSingleton<IHandlerMap, HandlerMap>();
 
         builder.Services.AddSingleton<IAsyncQueue<Request>, AsyncQueue<Request>>();

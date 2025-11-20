@@ -9,7 +9,7 @@ using NodeServer.handlers;
 
 public sealed class RequestDispatcherTests : IDisposable
 {
-    private class TestDispatcher(ILogger<RequestDispatcher> logger, IHandlerMap requestMap, IAsyncQueue<Request> requestQueue) : RequestDispatcher(logger, requestMap, requestQueue)
+    private class TestDispatcher(ILogger<RequestDispatcher> logger, IAsyncQueue<Request> requestQueue, IOneofHandler<ControlRequest> controlHandler, IOneofHandler<MatRequest> materialHandler) : RequestDispatcher(logger, requestQueue, controlHandler, materialHandler)
     {
         public Task TestExecuteAsync(CancellationToken cancellationToken)
         {
@@ -20,21 +20,21 @@ public sealed class RequestDispatcherTests : IDisposable
     private readonly CancellationTokenSource tokenSource = new();
     private readonly TestDispatcher dispatcher;
     private readonly Mock<ILogger<RequestDispatcher>> loggerMock = new();
-    private readonly Mock<IRequestHandler> handlerMock = new();
-    private readonly Mock<IHandlerMap> mapMock = new();
+    private readonly Mock<IOneofHandler<ControlRequest>> controlMock = new();
+    private readonly Mock<IOneofHandler<MatRequest>> materialMock = new();
     private readonly Mock<IAsyncQueue<Request>> queueMock = new();
 
     public RequestDispatcherTests()
     {
         loggerMock.Setup(m => m.IsEnabled(It.IsAny<LogLevel>())).Returns(false);
-        dispatcher = new(loggerMock.Object, mapMock.Object, queueMock.Object);
+        dispatcher = new(loggerMock.Object, queueMock.Object, controlMock.Object, materialMock.Object);
     }
 
     public void Dispose()
     {
         loggerMock.VerifyNoOtherCalls();
-        handlerMock.VerifyNoOtherCalls();
-        mapMock.VerifyNoOtherCalls();
+        controlMock.VerifyNoOtherCalls();
+        materialMock.VerifyNoOtherCalls();
         queueMock.VerifyNoOtherCalls();
     }
 
@@ -65,14 +65,12 @@ public sealed class RequestDispatcherTests : IDisposable
     }
 
     [Fact]
-    public async void ExecuteAsync_Handle()
+    public async void ExecuteAsync_HandleControl()
     {
         // will call DequeueAsync twice, first time return the request, 2nd return a task we'll cancel
-        Request request = new();
+        Request request = new() { ControlRequest = new()};
         TaskCompletionSource<Request> taskCompletionSource = new();
         queueMock.SetupSequence(m => m.DequeueAsync(It.IsAny<CancellationToken>())).ReturnsAsync(request).Returns(taskCompletionSource.Task);
-        // set up the GetHandler
-        mapMock.Setup(m => m.GetHandlerOrNull(request.RequestTypeCase)).Returns(handlerMock.Object);
         // run it
         Task task = dispatcher.TestExecuteAsync(tokenSource.Token);
         // cancel
@@ -81,7 +79,28 @@ public sealed class RequestDispatcherTests : IDisposable
         // should throw
         await Assert.ThrowsAsync<OperationCanceledException>(async () => await task);
         // verify the handler was called
-        handlerMock.Verify(m => m.Handle(request));
+        controlMock.Verify(m => m.Handle(request.ControlRequest));
+        loggerMock.Verify(m => m.IsEnabled(LogLevel.Debug));
+        queueMock.Verify(m => m.DequeueAsync(It.IsAny<CancellationToken>()));
+    }
+
+    [Fact]
+
+    public async void ExecuteAsync_HandleMaterial()
+    {
+        // will call DequeueAsync twice, first time return the request, 2nd return a task we'll cancel
+        Request request = new() { MatRequest = new()};
+        TaskCompletionSource<Request> taskCompletionSource = new();
+        queueMock.SetupSequence(m => m.DequeueAsync(It.IsAny<CancellationToken>())).ReturnsAsync(request).Returns(taskCompletionSource.Task);
+        // run it
+        Task task = dispatcher.TestExecuteAsync(tokenSource.Token);
+        // cancel
+        await tokenSource.CancelAsync();
+        taskCompletionSource.SetException(new OperationCanceledException());
+        // should throw
+        await Assert.ThrowsAsync<OperationCanceledException>(async () => await task);
+        // verify the handler was called
+        materialMock.Verify(m => m.Handle(request.MatRequest));
         loggerMock.Verify(m => m.IsEnabled(LogLevel.Debug));
         queueMock.Verify(m => m.DequeueAsync(It.IsAny<CancellationToken>()));
     }
@@ -93,8 +112,6 @@ public sealed class RequestDispatcherTests : IDisposable
         Request request = new();
         TaskCompletionSource<Request> taskCompletionSource = new();
         queueMock.SetupSequence(m => m.DequeueAsync(It.IsAny<CancellationToken>())).ReturnsAsync(request).Returns(taskCompletionSource.Task);
-        // set up the GetHandler
-        mapMock.Setup(m => m.GetHandlerOrNull(request.RequestTypeCase)).Returns((IRequestHandler?)null);
         // run it
         Task task = dispatcher.TestExecuteAsync(tokenSource.Token);
         // cancel
@@ -106,7 +123,6 @@ public sealed class RequestDispatcherTests : IDisposable
         loggerMock.Verify(m => m.IsEnabled(LogLevel.Warning));
         loggerMock.Verify(m => m.IsEnabled(LogLevel.Debug));
         queueMock.Verify(m => m.DequeueAsync(It.IsAny<CancellationToken>()));
-        mapMock.Verify(m => m.GetHandlerOrNull(request.RequestTypeCase));
     }
 
     // [Fact]
