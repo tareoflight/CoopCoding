@@ -1,7 +1,7 @@
 [gd_scene load_steps=7 format=3 uid="uid://b3twiw8ra3akm"]
 
-[ext_resource type="Script" uid="uid://dms6ppabxedw3" path="res://Scripts/Menus/gui_3d.gd" id="1"]
-[ext_resource type="Texture2D" uid="uid://bvtejrhmuxtl8" path="res://icon.svg" id="2"]
+[ext_resource type="Script" uid="uid://7jduvs3efcq1" path="res://Scripts/Menus/gui_3d.gd" id="1"]
+[ext_resource type="Texture2D" uid="uid://bosn303faavm0" path="res://icon.svg" id="2"]
 
 [sub_resource type="QuadMesh" id="1"]
 size = Vector2(3, 2)
@@ -52,20 +52,27 @@ theme_override_constants/separation = 13
 
 [node name="Label" type="Label" parent="SubViewport/GUI/Panel/VBoxContainer"]
 layout_mode = 2
-text = "Hello world!"
+text = "Menu"
 horizontal_alignment = 1
 
-[node name="Button" type="Button" parent="SubViewport/GUI/Panel/VBoxContainer"]
+[node name="Return" type="Button" parent="SubViewport/GUI/Panel/VBoxContainer"]
 layout_mode = 2
 text = "return"
+
+[node name="Exit" type="Button" parent="SubViewport/GUI/Panel/VBoxContainer"]
+layout_mode = 2
+text = "Exit"
+
+[node name="Get Data" type="Button" parent="SubViewport/GUI/Panel/VBoxContainer"]
+layout_mode = 2
+text = "Get Data"
 
 [node name="TextEdit" type="LineEdit" parent="SubViewport/GUI/Panel/VBoxContainer"]
 layout_mode = 2
 
-[node name="HSlider" type="HSlider" parent="SubViewport/GUI/Panel/VBoxContainer"]
+[node name="text_box" type="Label" parent="SubViewport/GUI/Panel/VBoxContainer"]
 layout_mode = 2
-step = 0.0
-ticks_on_borders = true
+text = "Some Data"
 
 [node name="ColorRect" type="ColorRect" parent="SubViewport/GUI/Panel"]
 layout_mode = 1
@@ -138,4 +145,6 @@ input_capture_on_drag = true
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Quad/Area3D"]
 shape = SubResource("4")
 
-[connection signal="pressed" from="SubViewport/GUI/Panel/VBoxContainer/Button" to="." method="_on_button_pressed"]
+[connection signal="pressed" from="SubViewport/GUI/Panel/VBoxContainer/Return" to="." method="_on_button_pressed"]
+[connection signal="pressed" from="SubViewport/GUI/Panel/VBoxContainer/Exit" to="." method="_on_exit_pressed"]
+[connection signal="pressed" from="SubViewport/GUI/Panel/VBoxContainer/Get Data" to="." method="_on_get_data_pressed"]

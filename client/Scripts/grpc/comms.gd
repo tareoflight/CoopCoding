@@ -702,6 +702,12 @@ class Request:
 		service.func_ref = Callable(self, "new_map_request")
 		data[__map_request.tag] = service
 		
+		__mat_request = PBField.new("mat_request", PB_DATA_TYPE.MESSAGE, PB_RULE.OPTIONAL, 3, true, DEFAULT_VALUES_3[PB_DATA_TYPE.MESSAGE])
+		service = PBServiceField.new()
+		service.field = __mat_request
+		service.func_ref = Callable(self, "new_mat_request")
+		data[__mat_request.tag] = service
+		
 	var data = {}
 	
 	var __control_request: PBField
@@ -718,6 +724,8 @@ class Request:
 		data[1].state = PB_SERVICE_STATE.FILLED
 		__map_request.value = DEFAULT_VALUES_3[PB_DATA_TYPE.MESSAGE]
 		data[2].state = PB_SERVICE_STATE.UNFILLED
+		__mat_request.value = DEFAULT_VALUES_3[PB_DATA_TYPE.MESSAGE]
+		data[3].state = PB_SERVICE_STATE.UNFILLED
 		__control_request.value = ControlRequest.new()
 		return __control_request.value
 	
@@ -735,8 +743,29 @@ class Request:
 		__control_request.value = DEFAULT_VALUES_3[PB_DATA_TYPE.MESSAGE]
 		data[1].state = PB_SERVICE_STATE.UNFILLED
 		data[2].state = PB_SERVICE_STATE.FILLED
+		__mat_request.value = DEFAULT_VALUES_3[PB_DATA_TYPE.MESSAGE]
+		data[3].state = PB_SERVICE_STATE.UNFILLED
 		__map_request.value = MapRequest.new()
 		return __map_request.value
+	
+	var __mat_request: PBField
+	func has_mat_request() -> bool:
+		if __mat_request.value != null:
+			return true
+		return false
+	func get_mat_request() -> MatRequest:
+		return __mat_request.value
+	func clear_mat_request() -> void:
+		data[3].state = PB_SERVICE_STATE.UNFILLED
+		__mat_request.value = DEFAULT_VALUES_3[PB_DATA_TYPE.MESSAGE]
+	func new_mat_request() -> MatRequest:
+		__control_request.value = DEFAULT_VALUES_3[PB_DATA_TYPE.MESSAGE]
+		data[1].state = PB_SERVICE_STATE.UNFILLED
+		__map_request.value = DEFAULT_VALUES_3[PB_DATA_TYPE.MESSAGE]
+		data[2].state = PB_SERVICE_STATE.UNFILLED
+		data[3].state = PB_SERVICE_STATE.FILLED
+		__mat_request.value = MatRequest.new()
+		return __mat_request.value
 	
 	func _to_string() -> String:
 		return PBPacker.message_to_string(data)
@@ -784,6 +813,51 @@ class MapRequest:
 	func new_player() -> PBVector3:
 		__player.value = PBVector3.new()
 		return __player.value
+	
+	func _to_string() -> String:
+		return PBPacker.message_to_string(data)
+		
+	func to_bytes() -> PackedByteArray:
+		return PBPacker.pack_message(data)
+		
+	func from_bytes(bytes : PackedByteArray, offset : int = 0, limit : int = -1) -> int:
+		var cur_limit = bytes.size()
+		if limit != -1:
+			cur_limit = limit
+		var result = PBPacker.unpack_message(data, bytes, offset, cur_limit)
+		if result == cur_limit:
+			if PBPacker.check_required(data):
+				if limit == -1:
+					return PB_ERR.NO_ERRORS
+			else:
+				return PB_ERR.REQUIRED_FIELDS
+		elif limit == -1 && result > 0:
+			return PB_ERR.PARSE_INCOMPLETE
+		return result
+	
+class MatRequest:
+	func _init():
+		var service
+		
+		__id = PBField.new("id", PB_DATA_TYPE.UINT32, PB_RULE.OPTIONAL, 1, true, DEFAULT_VALUES_3[PB_DATA_TYPE.UINT32])
+		service = PBServiceField.new()
+		service.field = __id
+		data[__id.tag] = service
+		
+	var data = {}
+	
+	var __id: PBField
+	func has_id() -> bool:
+		if __id.value != null:
+			return true
+		return false
+	func get_id() -> int:
+		return __id.value
+	func clear_id() -> void:
+		data[1].state = PB_SERVICE_STATE.UNFILLED
+		__id.value = DEFAULT_VALUES_3[PB_DATA_TYPE.UINT32]
+	func set_id(value : int) -> void:
+		__id.value = value
 	
 	func _to_string() -> String:
 		return PBPacker.message_to_string(data)
@@ -915,6 +989,12 @@ class NodeEvent:
 		service.func_ref = Callable(self, "new_map_event")
 		data[__map_event.tag] = service
 		
+		__mat_data = PBField.new("mat_data", PB_DATA_TYPE.MESSAGE, PB_RULE.OPTIONAL, 3, true, DEFAULT_VALUES_3[PB_DATA_TYPE.MESSAGE])
+		service = PBServiceField.new()
+		service.field = __mat_data
+		service.func_ref = Callable(self, "new_mat_data")
+		data[__mat_data.tag] = service
+		
 	var data = {}
 	
 	var __heartbeat_event: PBField
@@ -931,6 +1011,8 @@ class NodeEvent:
 		data[1].state = PB_SERVICE_STATE.FILLED
 		__map_event.value = DEFAULT_VALUES_3[PB_DATA_TYPE.MESSAGE]
 		data[2].state = PB_SERVICE_STATE.UNFILLED
+		__mat_data.value = DEFAULT_VALUES_3[PB_DATA_TYPE.MESSAGE]
+		data[3].state = PB_SERVICE_STATE.UNFILLED
 		__heartbeat_event.value = Heartbeat.new()
 		return __heartbeat_event.value
 	
@@ -948,8 +1030,29 @@ class NodeEvent:
 		__heartbeat_event.value = DEFAULT_VALUES_3[PB_DATA_TYPE.MESSAGE]
 		data[1].state = PB_SERVICE_STATE.UNFILLED
 		data[2].state = PB_SERVICE_STATE.FILLED
+		__mat_data.value = DEFAULT_VALUES_3[PB_DATA_TYPE.MESSAGE]
+		data[3].state = PB_SERVICE_STATE.UNFILLED
 		__map_event.value = MapEvent.new()
 		return __map_event.value
+	
+	var __mat_data: PBField
+	func has_mat_data() -> bool:
+		if __mat_data.value != null:
+			return true
+		return false
+	func get_mat_data() -> MatData:
+		return __mat_data.value
+	func clear_mat_data() -> void:
+		data[3].state = PB_SERVICE_STATE.UNFILLED
+		__mat_data.value = DEFAULT_VALUES_3[PB_DATA_TYPE.MESSAGE]
+	func new_mat_data() -> MatData:
+		__heartbeat_event.value = DEFAULT_VALUES_3[PB_DATA_TYPE.MESSAGE]
+		data[1].state = PB_SERVICE_STATE.UNFILLED
+		__map_event.value = DEFAULT_VALUES_3[PB_DATA_TYPE.MESSAGE]
+		data[2].state = PB_SERVICE_STATE.UNFILLED
+		data[3].state = PB_SERVICE_STATE.FILLED
+		__mat_data.value = MatData.new()
+		return __mat_data.value
 	
 	func _to_string() -> String:
 		return PBPacker.message_to_string(data)
@@ -976,8 +1079,15 @@ class MapEvent:
 	func _init():
 		var service
 		
-		var __nodes_default: Array[MapNode] = []
-		__nodes = PBField.new("nodes", PB_DATA_TYPE.MESSAGE, PB_RULE.REPEATED, 1, true, __nodes_default)
+		var __chunks_default: Array[PBChunkData] = []
+		__chunks = PBField.new("chunks", PB_DATA_TYPE.MESSAGE, PB_RULE.REPEATED, 1, true, __chunks_default)
+		service = PBServiceField.new()
+		service.field = __chunks
+		service.func_ref = Callable(self, "add_chunks")
+		data[__chunks.tag] = service
+		
+		var __nodes_default: Array[PBNodeData] = []
+		__nodes = PBField.new("nodes", PB_DATA_TYPE.MESSAGE, PB_RULE.REPEATED, 2, true, __nodes_default)
 		service = PBServiceField.new()
 		service.field = __nodes
 		service.func_ref = Callable(self, "add_nodes")
@@ -985,14 +1095,25 @@ class MapEvent:
 		
 	var data = {}
 	
+	var __chunks: PBField
+	func get_chunks() -> Array[PBChunkData]:
+		return __chunks.value
+	func clear_chunks() -> void:
+		data[1].state = PB_SERVICE_STATE.UNFILLED
+		__chunks.value.clear()
+	func add_chunks() -> PBChunkData:
+		var element = PBChunkData.new()
+		__chunks.value.append(element)
+		return element
+	
 	var __nodes: PBField
-	func get_nodes() -> Array[MapNode]:
+	func get_nodes() -> Array[PBNodeData]:
 		return __nodes.value
 	func clear_nodes() -> void:
-		data[1].state = PB_SERVICE_STATE.UNFILLED
+		data[2].state = PB_SERVICE_STATE.UNFILLED
 		__nodes.value.clear()
-	func add_nodes() -> MapNode:
-		var element = MapNode.new()
+	func add_nodes() -> PBNodeData:
+		var element = PBNodeData.new()
 		__nodes.value.append(element)
 		return element
 	
@@ -1062,22 +1183,35 @@ class Heartbeat:
 			return PB_ERR.PARSE_INCOMPLETE
 		return result
 	
-class MapNode:
+class PBChunkData:
 	func _init():
 		var service
 		
-		__location = PBField.new("location", PB_DATA_TYPE.MESSAGE, PB_RULE.OPTIONAL, 1, true, DEFAULT_VALUES_3[PB_DATA_TYPE.MESSAGE])
+		__id = PBField.new("id", PB_DATA_TYPE.UINT64, PB_RULE.OPTIONAL, 1, true, DEFAULT_VALUES_3[PB_DATA_TYPE.UINT64])
+		service = PBServiceField.new()
+		service.field = __id
+		data[__id.tag] = service
+		
+		__location = PBField.new("location", PB_DATA_TYPE.MESSAGE, PB_RULE.OPTIONAL, 2, true, DEFAULT_VALUES_3[PB_DATA_TYPE.MESSAGE])
 		service = PBServiceField.new()
 		service.field = __location
 		service.func_ref = Callable(self, "new_location")
 		data[__location.tag] = service
 		
-		__contents = PBField.new("contents", PB_DATA_TYPE.BYTES, PB_RULE.OPTIONAL, 2, true, DEFAULT_VALUES_3[PB_DATA_TYPE.BYTES])
-		service = PBServiceField.new()
-		service.field = __contents
-		data[__contents.tag] = service
-		
 	var data = {}
+	
+	var __id: PBField
+	func has_id() -> bool:
+		if __id.value != null:
+			return true
+		return false
+	func get_id() -> int:
+		return __id.value
+	func clear_id() -> void:
+		data[1].state = PB_SERVICE_STATE.UNFILLED
+		__id.value = DEFAULT_VALUES_3[PB_DATA_TYPE.UINT64]
+	func set_id(value : int) -> void:
+		__id.value = value
 	
 	var __location: PBField
 	func has_location() -> bool:
@@ -1087,7 +1221,95 @@ class MapNode:
 	func get_location() -> PBVector3:
 		return __location.value
 	func clear_location() -> void:
+		data[2].state = PB_SERVICE_STATE.UNFILLED
+		__location.value = DEFAULT_VALUES_3[PB_DATA_TYPE.MESSAGE]
+	func new_location() -> PBVector3:
+		__location.value = PBVector3.new()
+		return __location.value
+	
+	func _to_string() -> String:
+		return PBPacker.message_to_string(data)
+		
+	func to_bytes() -> PackedByteArray:
+		return PBPacker.pack_message(data)
+		
+	func from_bytes(bytes : PackedByteArray, offset : int = 0, limit : int = -1) -> int:
+		var cur_limit = bytes.size()
+		if limit != -1:
+			cur_limit = limit
+		var result = PBPacker.unpack_message(data, bytes, offset, cur_limit)
+		if result == cur_limit:
+			if PBPacker.check_required(data):
+				if limit == -1:
+					return PB_ERR.NO_ERRORS
+			else:
+				return PB_ERR.REQUIRED_FIELDS
+		elif limit == -1 && result > 0:
+			return PB_ERR.PARSE_INCOMPLETE
+		return result
+	
+class PBNodeData:
+	func _init():
+		var service
+		
+		__id = PBField.new("id", PB_DATA_TYPE.UINT64, PB_RULE.OPTIONAL, 1, true, DEFAULT_VALUES_3[PB_DATA_TYPE.UINT64])
+		service = PBServiceField.new()
+		service.field = __id
+		data[__id.tag] = service
+		
+		__chunk_id = PBField.new("chunk_id", PB_DATA_TYPE.UINT64, PB_RULE.OPTIONAL, 2, true, DEFAULT_VALUES_3[PB_DATA_TYPE.UINT64])
+		service = PBServiceField.new()
+		service.field = __chunk_id
+		data[__chunk_id.tag] = service
+		
+		__location = PBField.new("location", PB_DATA_TYPE.MESSAGE, PB_RULE.OPTIONAL, 3, true, DEFAULT_VALUES_3[PB_DATA_TYPE.MESSAGE])
+		service = PBServiceField.new()
+		service.field = __location
+		service.func_ref = Callable(self, "new_location")
+		data[__location.tag] = service
+		
+		__contents = PBField.new("contents", PB_DATA_TYPE.BYTES, PB_RULE.OPTIONAL, 4, true, DEFAULT_VALUES_3[PB_DATA_TYPE.BYTES])
+		service = PBServiceField.new()
+		service.field = __contents
+		data[__contents.tag] = service
+		
+	var data = {}
+	
+	var __id: PBField
+	func has_id() -> bool:
+		if __id.value != null:
+			return true
+		return false
+	func get_id() -> int:
+		return __id.value
+	func clear_id() -> void:
 		data[1].state = PB_SERVICE_STATE.UNFILLED
+		__id.value = DEFAULT_VALUES_3[PB_DATA_TYPE.UINT64]
+	func set_id(value : int) -> void:
+		__id.value = value
+	
+	var __chunk_id: PBField
+	func has_chunk_id() -> bool:
+		if __chunk_id.value != null:
+			return true
+		return false
+	func get_chunk_id() -> int:
+		return __chunk_id.value
+	func clear_chunk_id() -> void:
+		data[2].state = PB_SERVICE_STATE.UNFILLED
+		__chunk_id.value = DEFAULT_VALUES_3[PB_DATA_TYPE.UINT64]
+	func set_chunk_id(value : int) -> void:
+		__chunk_id.value = value
+	
+	var __location: PBField
+	func has_location() -> bool:
+		if __location.value != null:
+			return true
+		return false
+	func get_location() -> PBVector3:
+		return __location.value
+	func clear_location() -> void:
+		data[3].state = PB_SERVICE_STATE.UNFILLED
 		__location.value = DEFAULT_VALUES_3[PB_DATA_TYPE.MESSAGE]
 	func new_location() -> PBVector3:
 		__location.value = PBVector3.new()
@@ -1101,10 +1323,91 @@ class MapNode:
 	func get_contents() -> PackedByteArray:
 		return __contents.value
 	func clear_contents() -> void:
-		data[2].state = PB_SERVICE_STATE.UNFILLED
+		data[4].state = PB_SERVICE_STATE.UNFILLED
 		__contents.value = DEFAULT_VALUES_3[PB_DATA_TYPE.BYTES]
 	func set_contents(value : PackedByteArray) -> void:
 		__contents.value = value
+	
+	func _to_string() -> String:
+		return PBPacker.message_to_string(data)
+		
+	func to_bytes() -> PackedByteArray:
+		return PBPacker.pack_message(data)
+		
+	func from_bytes(bytes : PackedByteArray, offset : int = 0, limit : int = -1) -> int:
+		var cur_limit = bytes.size()
+		if limit != -1:
+			cur_limit = limit
+		var result = PBPacker.unpack_message(data, bytes, offset, cur_limit)
+		if result == cur_limit:
+			if PBPacker.check_required(data):
+				if limit == -1:
+					return PB_ERR.NO_ERRORS
+			else:
+				return PB_ERR.REQUIRED_FIELDS
+		elif limit == -1 && result > 0:
+			return PB_ERR.PARSE_INCOMPLETE
+		return result
+	
+class MatData:
+	func _init():
+		var service
+		
+		__id = PBField.new("id", PB_DATA_TYPE.UINT32, PB_RULE.OPTIONAL, 1, true, DEFAULT_VALUES_3[PB_DATA_TYPE.UINT32])
+		service = PBServiceField.new()
+		service.field = __id
+		data[__id.tag] = service
+		
+		__name = PBField.new("name", PB_DATA_TYPE.STRING, PB_RULE.OPTIONAL, 2, true, DEFAULT_VALUES_3[PB_DATA_TYPE.STRING])
+		service = PBServiceField.new()
+		service.field = __name
+		data[__name.tag] = service
+		
+		__description = PBField.new("description", PB_DATA_TYPE.STRING, PB_RULE.OPTIONAL, 3, true, DEFAULT_VALUES_3[PB_DATA_TYPE.STRING])
+		service = PBServiceField.new()
+		service.field = __description
+		data[__description.tag] = service
+		
+	var data = {}
+	
+	var __id: PBField
+	func has_id() -> bool:
+		if __id.value != null:
+			return true
+		return false
+	func get_id() -> int:
+		return __id.value
+	func clear_id() -> void:
+		data[1].state = PB_SERVICE_STATE.UNFILLED
+		__id.value = DEFAULT_VALUES_3[PB_DATA_TYPE.UINT32]
+	func set_id(value : int) -> void:
+		__id.value = value
+	
+	var __name: PBField
+	func has_name() -> bool:
+		if __name.value != null:
+			return true
+		return false
+	func get_name() -> String:
+		return __name.value
+	func clear_name() -> void:
+		data[2].state = PB_SERVICE_STATE.UNFILLED
+		__name.value = DEFAULT_VALUES_3[PB_DATA_TYPE.STRING]
+	func set_name(value : String) -> void:
+		__name.value = value
+	
+	var __description: PBField
+	func has_description() -> bool:
+		if __description.value != null:
+			return true
+		return false
+	func get_description() -> String:
+		return __description.value
+	func clear_description() -> void:
+		data[3].state = PB_SERVICE_STATE.UNFILLED
+		__description.value = DEFAULT_VALUES_3[PB_DATA_TYPE.STRING]
+	func set_description(value : String) -> void:
+		__description.value = value
 	
 	func _to_string() -> String:
 		return PBPacker.message_to_string(data)

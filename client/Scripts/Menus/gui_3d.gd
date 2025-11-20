@@ -1,5 +1,6 @@
 extends Node3D
-
+var rpc := preload("res://Scripts/grpc/common.gd")
+var stream = rpc.new()
 # Used for checking if the mouse is inside the Area3D.
 var is_mouse_inside = false
 # The last processed input touch/mouse event. To calculate relative movement.
@@ -10,8 +11,11 @@ var last_event_time: float = -1.0
 @onready var node_viewport = $SubViewport
 @onready var node_quad = $Quad
 @onready var node_area = $Quad/Area3D
+@onready var text_box: Label = $SubViewport/GUI/Panel/VBoxContainer/text_box
+@onready var color_rect: ColorRect = $SubViewport/GUI/Panel/ColorRect
 
 func _ready():
+	
 	node_area.mouse_entered.connect(_mouse_entered_area)
 	node_area.mouse_exited.connect(_mouse_exited_area)
 	node_area.input_event.connect(_mouse_input_event)
@@ -19,11 +23,22 @@ func _ready():
 	# If the material is NOT set to use billboard settings, then avoid running billboard specific code
 	if node_quad.get_surface_override_material(0).billboard_mode == BaseMaterial3D.BillboardMode.BILLBOARD_DISABLED:
 		set_process(false)
+	
+	await stream.new_connection()
 
-
+func _physics_process(_delta):
+	if stream.con.get_available_bytes() > 0:
+		var size = stream.con.get_32()
+		var data = stream.con.get_data(size)[1]
+		var event = stream.event(data)
+		
+		if event.has_heartbeat_event():
+			heartbeat()
+			
 func _process(_delta):
 	# NOTE: Remove this function if you don't plan on using billboard settings.
 	rotate_area_to_billboard()
+	
 
 
 func _mouse_entered_area():
@@ -138,3 +153,21 @@ func recursive_check(last:Node3D):
 
 func _on_button_pressed() -> void:
 	recursive_check(get_parent())
+
+
+func _on_exit_pressed() -> void:
+	get_tree().quit() # Replace with function body.
+
+
+func _on_get_data_pressed() -> void:
+	print("hit get data")
+	pass # Replace with function body.
+
+func heartbeat() -> void:
+	#set the color to clear
+	color_rect.color = Color(0.0, 0.0, 0.0, 0.0)
+	#wait 1 sec
+	await get_tree().create_timer(1.0).timeout
+	#set color back to red
+	color_rect.color = Color(1.0, 0.0, 0.0, 1.0)
+	
