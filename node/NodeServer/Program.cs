@@ -50,7 +50,7 @@ public partial class Program
         builder.Services.AddOptions<NodeServerOptions>().Bind(builder.Configuration.GetSection(nameof(NodeServerOptions)));
 
         builder.Services.AddSingleton<IOneofHandler<ControlRequest>, ControlHandler>();
-        builder.Services.AddSingleton<IHandlerMap, HandlerMap>();
+        builder.Services.AddSingleton<IOneofHandler<MatRequest>, MaterialHandler>();
 
         builder.Services.AddSingleton<IAsyncQueue<Request>, AsyncQueue<Request>>();
         builder.Services.AddSingleton<ISocketConnection, SocketConnection>();

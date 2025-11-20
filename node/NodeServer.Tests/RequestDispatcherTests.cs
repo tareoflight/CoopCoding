@@ -85,7 +85,6 @@ public sealed class RequestDispatcherTests : IDisposable
     }
 
     [Fact]
-
     public async void ExecuteAsync_HandleMaterial()
     {
         // will call DequeueAsync twice, first time return the request, 2nd return a task we'll cancel
