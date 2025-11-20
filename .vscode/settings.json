@@ -1,4 +1,5 @@
 {
     "dotnet.defaultSolution": "coding.sln",
-    "godotTools.editorPath.godot4": "e:\\Users\\natha\\Desktop\\godot.windows.editor.x86_64.exe"
+    "godotTools.editorPath.godot4": "e:\\Users\\natha\\Desktop\\godot.windows.editor.x86_64.exe",
+    "dotnet.unitTests.runSettingsPath": "node/tests.runsettings"
 }
